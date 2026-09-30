@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="SchedulingHouseholdChores.Tests/SchedulingHouseholdChores.Tests.csproj" />
+  <Project Path="SchedulingHouseholdChores/SchedulingHouseholdChores.csproj" />
+</Solution>
