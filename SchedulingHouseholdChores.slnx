@@ -1,4 +1,3 @@
 <Solution>
-  <Project Path="../SchedulingHouseholdChores.Tests/SchedulingHouseholdChores.Tests.csproj" />
   <Project Path="SchedulingHouseholdChores.csproj" />
 </Solution>
