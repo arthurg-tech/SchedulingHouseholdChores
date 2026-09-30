@@ -1,6 +1,6 @@
 # 🏡 Gestão de Tarefas Domésticas (Scheduling Household Chores)
 
-Uma aplicação Full-Stack desenvolvida para facilitar o gerenciamento, o rastreamento e a organização de tarefas domésticas recorrentes. O projeto demonstra a integração completa de uma arquitetura moderna utilizando o ecossistema .NET, com foco em uma experiência de uso simples e eficiente.
+Uma aplicação desenvolvida para facilitar o gerenciamento, o rastreamento e a organização de tarefas domésticas recorrentes. O projeto demonstra a integração completa de uma arquitetura moderna utilizando o ecossistema .NET, com foco em uma experiência de uso simples e eficiente.
 
 ## 🚀 Tecnologias Utilizadas
 
