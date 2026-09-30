@@ -1,0 +1,126 @@
+﻿@page "/"
+@inject HttpClient Http
+@using System.Net.Http.Json
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true" Color="Color.Primary">
+        Gestão de Tarefas Domésticas
+    </MudText>
+
+    <MudGrid Class="mt-4">
+        <!-- Coluna da Esquerda: Formulário de Nova Tarefa -->
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="3">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Adicionar Tarefa</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudForm @ref="form" @bind-IsValid="@isFormValid">
+                        <MudTextField @bind-Value="newTask.Title" Label="Título (Ex: Tirar o lixo)" Required="true" RequiredError="O título é obrigatório" Class="mb-3" Variant="Variant.Outlined" />
+
+                        <MudTextField @bind-Value="newTask.Description" Label="Descrição detalhada" Required="true" RequiredError="A descrição é obrigatória" Lines="3" Class="mb-3" Variant="Variant.Outlined" />
+
+                        <MudNumericField @bind-Value="newTask.FrequencyInDays" Label="Frequência (Dias)" Required="true" Min="1" Class="mb-4" Variant="Variant.Outlined" />
+                    </MudForm>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="SubmitNewTask" Disabled="@(!isFormValid)">
+                        Salvar Tarefa
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+
+        <!-- Coluna da Direita: Lista de Tarefas -->
+        <MudItem xs="12" md="8">
+            @if (tasks == null)
+            {
+                <div class="d-flex justify-center mt-10">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                </div>
+            }
+            else if (!tasks.Any())
+            {
+                <MudAlert Severity="Severity.Info">Nenhuma tarefa encontrada no banco de dados.</MudAlert>
+            }
+            else
+            {
+                <MudGrid>
+                    @foreach (var task in tasks)
+                    {
+                        <MudItem xs="12" sm="6">
+                            <MudCard Elevation="2" Style="height: 100%;">
+                                <MudCardContent>
+                                    <MudText Typo="Typo.h6" Color="Color.Secondary">@task.Title</MudText>
+                                    <MudText Typo="Typo.body2" Class="mb-4 mt-2">@task.Description</MudText>
+
+                                    <MudDivider Class="mb-2" />
+
+                                    <MudText Typo="Typo.caption">
+                                        <strong>Frequência:</strong> A cada @task.FrequencyInDays dias <br />
+                                    </MudText>
+                                </MudCardContent>
+                            </MudCard>
+                        </MudItem>
+                    }
+                </MudGrid>
+            }
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private List<RecurrentTask>? tasks;
+    private RecurrentTask newTask = new() { FrequencyInDays = 7 };
+    private MudForm form;
+    private bool isFormValid;
+
+    // Se a sua API estiver a correr noutra porta, altere aqui.
+    private readonly string apiUrl = "https://localhost:7201/api/RecurrentTasks";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTasks();
+    }
+
+    private async Task LoadTasks()
+    {
+        try
+        {
+            tasks = await Http.GetFromJsonAsync<List<RecurrentTask>>(apiUrl);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao buscar dados: {ex.Message}");
+        }
+    }
+
+    private async Task SubmitNewTask()
+    {
+        await form.ValidateAsync();
+        if (form.IsValid)
+        {
+            newTask.LastExecution = DateTime.Now;
+
+            var response = await Http.PostAsJsonAsync(apiUrl, newTask);
+            if (response.IsSuccessStatusCode)
+            {
+                newTask = new() { FrequencyInDays = 7 };
+                await LoadTasks();
+                await form.ResetAsync();
+            }
+        }
+    }
+
+    // Classe local para mapear o JSON da API
+    public class RecurrentTask
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public int FrequencyInDays { get; set; }
+        public DateTime LastExecution { get; set; }
+    }
+}
