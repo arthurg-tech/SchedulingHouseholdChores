@@ -1,0 +1,6 @@
+@SchedulingHouseholdChores_HostAddress = http://localhost:5201
+
+GET {{SchedulingHouseholdChores_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
