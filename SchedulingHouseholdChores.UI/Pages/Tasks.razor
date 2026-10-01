@@ -1,0 +1,239 @@
+@page "/tasks"
+@using SchedulingHouseholdChores.UI.Services
+@using SchedulingHouseholdChores.UI.Models
+@using System.Net.Http.Json
+@inject HttpClient HttpClient
+@inject AuthClientService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Minhas Tarefas - Gerenciador de Tarefas</PageTitle>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Minhas Tarefas</h2>
+
+    @if (!isAuthenticated)
+    {
+        <div class="alert alert-warning">
+            Você precisa estar autenticado para acessar essa página.
+            <button class="btn btn-primary ms-3" @onclick="GotoLogin">
+                Fazer Login
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Adicionar Nova Tarefa</h5>
+                    </div>
+                    <div class="card-body">
+                        <form @onsubmit="AddTask">
+                            <div class="mb-3">
+                                <label class="form-label">Título</label>
+                                <input type="text" class="form-control" @bind="newTask.Title" required />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Descrição</label>
+                                <textarea class="form-control" rows="3" @bind="newTask.Description"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Frequência (dias)</label>
+                                <input type="number" class="form-control" @bind="newTask.FrequencyInDays" min="1" required />
+                            </div>
+                            <button type="submit" class="btn btn-success w-100" disabled="@isLoading">
+                                @if (isLoading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                Adicionar Tarefa
+                            </button>
+                        </form>
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger mt-3">@errorMessage</div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Lista de Tarefas</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (tasks == null)
+                        {
+                            <div class="text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Carregando...</span>
+                                </div>
+                            </div>
+                        }
+                        else if (tasks.Count == 0)
+                        {
+                            <div class="alert alert-info">
+                                Nenhuma tarefa encontrada. Adicione uma nova tarefa para começar!
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Título</th>
+                                            <th>Frequência</th>
+                                            <th>Próxima Execução</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var task in tasks)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <strong>@task.Title</strong><br/>
+                                                    <small class="text-muted">@task.Description</small>
+                                                </td>
+                                                <td>A cada @task.FrequencyInDays dias</td>
+                                                <td>@task.NextExecution.ToString("dd/MM/yyyy")</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-warning" @onclick="() => EditTask(task)">Editar</button>
+                                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteTask(task.Id)">Deletar</button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool isAuthenticated = false;
+    private List<RecurrentTaskDto> tasks = new();
+    private RecurrentTaskDto newTask = new();
+    private string errorMessage = string.Empty;
+    private bool isLoading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        if (!isAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        await LoadTasks();
+    }
+
+    private async Task LoadTasks()
+    {
+        try
+        {
+            // Configure o HttpClient com o token
+            await AuthService.ConfigureAuthenticatedClient(HttpClient);
+
+            tasks = await HttpClient.GetFromJsonAsync<List<RecurrentTaskDto>>("api/recurrenttasks") ?? new();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro ao carregar tarefas: {ex.Message}";
+        }
+    }
+
+    private async Task AddTask()
+    {
+        if (string.IsNullOrWhiteSpace(newTask.Title) || newTask.FrequencyInDays <= 0)
+        {
+            errorMessage = "Preencha todos os campos obrigatórios";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = string.Empty;
+
+        try
+        {
+            // Configure o HttpClient com o token
+            await AuthService.ConfigureAuthenticatedClient(HttpClient);
+
+            var request = new
+            {
+                newTask.Title,
+                newTask.Description,
+                newTask.FrequencyInDays
+            };
+
+            var response = await HttpClient.PostAsJsonAsync("api/recurrenttasks", request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                newTask = new();
+                await LoadTasks();
+            }
+            else
+            {
+                errorMessage = "Erro ao adicionar tarefa";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task EditTask(RecurrentTaskDto task)
+    {
+        // TODO: Implementar edição de tarefa
+        await Task.CompletedTask;
+    }
+
+    private async Task DeleteTask(int id)
+    {
+        if (!await ConfirmDelete())
+            return;
+
+        try
+        {
+            // Configure o HttpClient com o token
+            await AuthService.ConfigureAuthenticatedClient(HttpClient);
+
+            var response = await HttpClient.DeleteAsync($"api/recurrenttasks/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadTasks();
+            }
+            else
+            {
+                errorMessage = "Erro ao deletar tarefa";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro: {ex.Message}";
+        }
+    }
+
+    private async Task<bool> ConfirmDelete()
+    {
+        // Em uma aplicação real, você usaria um modal de confirmação
+        return await Task.FromResult(true);
+    }
+
+    private void GotoLogin() => Navigation.NavigateTo("/login");
+}
+

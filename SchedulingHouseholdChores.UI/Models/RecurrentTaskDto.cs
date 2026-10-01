@@ -1,15 +1,11 @@
-﻿namespace SchedulingHouseholdChores.Models;
+namespace SchedulingHouseholdChores.UI.Models;
 
-public class RecurrentTask
+public class RecurrentTaskDto
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public int FrequencyInDays { get; set; }
     public DateTime LastExecution { get; set; }
-    public int UserId { get; set; }
-
-    public User? User { get; set; }
-
     public DateTime NextExecution => LastExecution.AddDays(FrequencyInDays);
 }
