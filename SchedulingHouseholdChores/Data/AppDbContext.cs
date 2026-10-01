@@ -15,56 +15,56 @@ public class AppDbContext : DbContext
             new RecurrentTask
             {
                 Id = 1,
-                Title = "Change pet water fountain filter",
-                Description = "Replace the activated carbon filter of the automatic water fountain.",
+                Title = "Trocar filtro da fonte de água",
+                Description = "Substituir o filtro de carvão ativado da fonte de água automática dos gatos.",
                 FrequencyInDays = 30,
                 LastExecution = DateTime.Now.AddDays(-15)
             },
             new RecurrentTask
             {
                 Id = 2,
-                Title = "Buy Catbio litter",
-                Description = "Restock biodegradable cat litter.",
+                Title = "Comprar areia do Gato",
+                Description = "Repor o estoque de areia biodegradável para gatos.",
                 FrequencyInDays = 45,
                 LastExecution = DateTime.Now.AddDays(-40)
             },
             new RecurrentTask
             {
                 Id = 3,
-                Title = "Take out the trash",
-                Description = "Empty all indoor trash bins and take the bags outside.",
+                Title = "Tirar o lixo",
+                Description = "Esvaziar todas as lixeiras da casa e levar os sacos para fora.",
                 FrequencyInDays = 2,
                 LastExecution = DateTime.Now.AddDays(-1)
             },
             new RecurrentTask
             {
                 Id = 4,
-                Title = "Vacuum the house",
-                Description = "Vacuum all floors and rugs, paying special attention to cat hair on the furniture.",
+                Title = "Aspirar a casa",
+                Description = "Aspirar todos os pisos e tapetes, dando atenção especial aos pelos de gato nos móveis.",
                 FrequencyInDays = 3,
                 LastExecution = DateTime.Now.AddDays(-2)
             },
             new RecurrentTask
             {
                 Id = 5,
-                Title = "Deep clean the bathroom",
-                Description = "Scrub the shower and toilet, and wipe down the matte black faucets and accessories with a non-abrasive soft cloth.",
+                Title = "Faxina pesada no banheiro",
+                Description = "Esfregar o box e o vaso sanitário, limpar as torneiras e acessórios do banheiro.",
                 FrequencyInDays = 7,
                 LastExecution = DateTime.Now.AddDays(-6)
             },
             new RecurrentTask
             {
                 Id = 6,
-                Title = "Change bed linens",
-                Description = "Remove used sheets and pillowcases and replace with a fresh set.",
+                Title = "Trocar roupa de cama",
+                Description = "Remover os lençóis e fronhas usados e substituir por um conjunto limpo.",
                 FrequencyInDays = 7,
                 LastExecution = DateTime.Now.AddDays(-7)
             },
             new RecurrentTask
             {
                 Id = 7,
-                Title = "Do laundry",
-                Description = "Sort, wash, and dry clothes and towels.",
+                Title = "Lavar as roupas",
+                Description = "Separar, lavar e secar as roupas e toalhas.",
                 FrequencyInDays = 4,
                 LastExecution = DateTime.Now.AddDays(-2)
             }
