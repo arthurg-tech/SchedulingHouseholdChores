@@ -7,9 +7,9 @@ using System.Security.Claims;
 
 namespace SchedulingHouseholdChores.Controllers;
 
+[Authorize] // Garante que apenas utilizadores com Token válido acedem
 [ApiController]
-[Route("api/[controller]")]
-[Authorize]
+[Route("api/recurrenttasks")]
 public class RecurrentTasksController : ControllerBase
 {
     private readonly AppDbContext _context;
@@ -19,12 +19,6 @@ public class RecurrentTasksController : ControllerBase
         _context = context;
     }
 
-    private int GetUserId()
-    {
-        var userIdClaim = User.FindFirst("nameid")?.Value;
-        return int.Parse(userIdClaim ?? "0");
-    }
-
     [HttpGet]
     public async Task<IActionResult> GetTasks()
     {
@@ -32,14 +26,13 @@ public class RecurrentTasksController : ControllerBase
         var tasks = await _context.RecurrentTasks
             .Where(t => t.UserId == userId)
             .ToListAsync();
+
         return Ok(tasks);
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateTask([FromBody] CreateTaskRequest request)
     {
-        var userId = GetUserId();
-
         if (string.IsNullOrWhiteSpace(request.Title) || request.FrequencyInDays <= 0)
         {
             return BadRequest("Título e frequência são obrigatórios e devem ser válidos");
@@ -51,58 +44,27 @@ public class RecurrentTasksController : ControllerBase
             Description = request.Description ?? string.Empty,
             FrequencyInDays = request.FrequencyInDays,
             LastExecution = DateTime.Now,
-            UserId = userId
+            UserId = GetUserId()
         };
 
         _context.RecurrentTasks.Add(task);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetTasks), new { id = task.Id }, task);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateTask(int id, [FromBody] UpdateTaskRequest request)
-    {
-        var userId = GetUserId();
-
-        var task = await _context.RecurrentTasks
-            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
-
-        if (task == null)
-            return NotFound("Tarefa não encontrada");
-
-        if (!string.IsNullOrWhiteSpace(request.Title))
-            task.Title = request.Title;
-
-        if (!string.IsNullOrWhiteSpace(request.Description))
-            task.Description = request.Description;
-
-        if (request.FrequencyInDays.HasValue && request.FrequencyInDays > 0)
-            task.FrequencyInDays = request.FrequencyInDays.Value;
-
-        _context.RecurrentTasks.Update(task);
-        await _context.SaveChangesAsync();
-
         return Ok(task);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTask(int id)
+    private int GetUserId()
     {
-        var userId = GetUserId();
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                        ?? User.FindFirst("nameid")?.Value;
 
-        var task = await _context.RecurrentTasks
-            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+        if (int.TryParse(userIdString, out int userId))
+        {
+            return userId;
+        }
 
-        if (task == null)
-            return NotFound("Tarefa não encontrada");
-
-        _context.RecurrentTasks.Remove(task);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
+        throw new UnauthorizedAccessException("O ID do utilizador não foi encontrado no token.");
     }
 }
 
-public record CreateTaskRequest(string Title, string? Description, int FrequencyInDays);
-public record UpdateTaskRequest(string? Title, string? Description, int? FrequencyInDays);
+public record CreateTaskRequest(string Title, string Description, int FrequencyInDays);
