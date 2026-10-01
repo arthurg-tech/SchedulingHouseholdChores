@@ -26,7 +26,7 @@ Uma aplicação desenvolvida para facilitar o gerenciamento, o rastreamento e a 
 
 O projeto está em constante evolução para se tornar um assistente pessoal cada vez mais útil no dia a dia. As próximas grandes atualizações focarão em conveniência e personalização:
 
-* **Contas de Usuário e Painel Pessoal:** Criação de um sistema de cadastro e login para que cada pessoa tenha o seu próprio ambiente privado. Dessa forma, a aplicação poderá ser usada por diferentes pessoas, onde cada usuário gerencia a sua própria lista de tarefas de forma isolada, sem misturar com as tarefas dos outros.
+* **Contas de Usuário e Painel Pessoal (Em andamento ⌛):** Criação de um sistema de cadastro e login para que cada pessoa tenha o seu próprio ambiente privado. Dessa forma, a aplicação poderá ser usada por diferentes pessoas, onde cada usuário gerencia a sua própria lista de tarefas de forma isolada, sem misturar com as tarefas dos outros.
 * **Lembretes Automáticos por E-mail:** Para que o usuário não precise lembrar de abrir o aplicativo todos os dias, o sistema passará a ser proativo. Uma rotina em segundo plano será implementada para enviar lembretes direto para o e-mail do usuário sempre que uma tarefa atingir a sua data limite (por exemplo, avisar que está na hora de comprar areia para os gatos ou lavar os filtros do ar-condicionado).
 
 ## Como Executar o Projeto Localmente
