@@ -32,5 +32,6 @@ O projeto está em constante evolução para se tornar um assistente pessoal cad
 ## Como Executar o Projeto Localmente
 
 1. Clone este repositório:
+   
    ```bash
    git clone https://github.com/seu-usuario/SchedulingHouseholdChores.git
